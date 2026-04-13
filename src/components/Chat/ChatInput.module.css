@@ -1,0 +1,108 @@
+/* File: src/components/Chat/ChatInput.module.css */
+
+.container {
+  padding: 0.75rem 1rem 0.5rem;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+
+.inputRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  transition: border-color 0.2s;
+}
+
+.inputRow:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.12);
+}
+
+/* ── Textarea ── */
+.textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: var(--font-sans);
+  font-size: 0.93rem;
+  color: var(--color-text);
+  line-height: 1.5;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  font-style: italic;
+}
+
+.textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Send button ── */
+.sendButton {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
+}
+
+.sendButton:hover:not(:disabled) {
+  transform: scale(1.08);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.6);
+}
+
+.sendButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.sendIcon {
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+/* ── Loading spinner ── */
+.spinner {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Hint text ── */
+.hint {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  opacity: 0.35;
+  text-align: center;
+  margin-top: 0.35rem;
+  letter-spacing: 0.04em;
+}

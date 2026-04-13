@@ -1,0 +1,72 @@
+/* File: src/styles/global.css */
+
+/* ── Reset & Base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Colour palette — deep cosmic theme */
+  --color-bg:           #0b0c1a;
+  --color-surface:      #12132a;
+  --color-surface-alt:  #1a1b35;
+  --color-border:       #2a2b50;
+  --color-primary:      #a78bfa;   /* violet */
+  --color-primary-dark: #7c3aed;
+  --color-gold:         #f59e0b;
+  --color-gold-light:   #fde68a;
+  --color-text:         #e2e8f0;
+  --color-text-muted:   #94a3b8;
+  --color-user-bubble:  #1e1b4b;
+  --color-ai-bubble:    #0f172a;
+  --color-scrollbar:    #2a2b50;
+
+  /* Typography */
+  --font-serif: 'Cinzel', Georgia, serif;
+  --font-sans:  'Inter', system-ui, sans-serif;
+
+  /* Spacing */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+}
+
+html, body, #root, .app-root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar (webkit) ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-dark);
+}
+
+/* ── Utility ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+}

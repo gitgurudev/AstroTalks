@@ -1,0 +1,225 @@
+/* File: src/components/Chat/Sidebar.module.css */
+
+/* Mobile overlay behind sidebar */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 10;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  height: 100%;
+  overflow: hidden;
+
+  /* Mobile: hidden off-screen by default */
+  @media (max-width: 640px) {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    z-index: 20;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+}
+
+/* Mobile open state */
+.sidebar.open {
+  @media (max-width: 640px) {
+    transform: translateX(0);
+  }
+}
+
+/* ── User badge ── */
+.userBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.userAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1e1b4b;
+  border: 1px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  overflow: hidden;
+}
+
+.userName {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userSign {
+  font-size: 0.7rem;
+  color: var(--color-gold);
+  opacity: 0.75;
+  letter-spacing: 0.05em;
+}
+
+/* ── New Chat button ── */
+.newChatBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem;
+  padding: 0.55rem 1rem;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.35);
+}
+
+.newChatBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.55);
+}
+
+.newChatBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Session list ── */
+.sessionList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0.5rem 0.5rem;
+}
+
+.sectionLabel {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  padding: 0.6rem 0.5rem 0.3rem;
+}
+
+.emptyMsg {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  opacity: 0.45;
+  text-align: center;
+  padding: 1.5rem 0.5rem;
+}
+
+/* ── Session row (item + delete button) ── */
+.sessionRow {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sessionRow:hover .deleteBtn {
+  opacity: 1;
+}
+
+.deleteBtn {
+  flex-shrink: 0;
+  padding: 0.25rem 0.4rem;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.deleteBtn:hover {
+  color: #f87171;
+}
+
+/* ── Individual session item ── */
+.sessionItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.75rem;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.sessionItem:hover {
+  background: var(--color-surface-alt);
+}
+
+.sessionItem.active {
+  background: rgba(124, 58, 237, 0.15);
+  border-left: 2px solid var(--color-primary);
+}
+
+.sessionDate {
+  font-size: 0.65rem;
+  color: var(--color-gold);
+  opacity: 0.7;
+  letter-spacing: 0.05em;
+}
+
+.sessionPreview {
+  font-size: 0.82rem;
+  color: var(--color-text);
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.sessionCount {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  opacity: 0.4;
+}
+
+/* ── Back to landing button ── */
+.backBtn {
+  margin: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.backBtn:hover {
+  color: var(--color-text);
+  border-color: var(--color-primary);
+}
