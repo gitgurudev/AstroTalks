@@ -5,9 +5,20 @@ import {
   getUserSessions, getSession, deleteSession,
 } from '../services/api.js';
 
+function loadPersistedState() {
+  try {
+    const user      = JSON.parse(sessionStorage.getItem('at_user') || 'null');
+    const sessionId = sessionStorage.getItem('at_session') || null;
+    return { user, sessionId };
+  } catch {
+    return { user: null, sessionId: null };
+  }
+}
+
 function useChat() {
-  const [user, setUser]               = useState(null);
-  const [sessionId, setSessionId]     = useState(null);
+  const persisted = loadPersistedState();
+  const [user, setUser]               = useState(persisted.user);
+  const [sessionId, setSessionId]     = useState(persisted.sessionId);
   const [messages, setMessages]       = useState([]);
   const [pastSessions, setPastSessions] = useState([]);   // sidebar list
   const [isLoading, setIsLoading]         = useState(false);
@@ -23,6 +34,42 @@ function useChat() {
       setPastSessions(list);
     } catch { /* silent fail — sidebar is non-critical */ }
     finally { setIsSidebarLoading(false); }
+  }, []);
+
+  // Persist user + sessionId across page refreshes (within the same browser tab)
+  useEffect(() => {
+    if (user) sessionStorage.setItem('at_user', JSON.stringify(user));
+    else sessionStorage.removeItem('at_user');
+  }, [user]);
+
+  useEffect(() => {
+    if (sessionId) sessionStorage.setItem('at_session', sessionId);
+    else sessionStorage.removeItem('at_session');
+  }, [sessionId]);
+
+  // On first mount, restore messages for the persisted session
+  useEffect(() => {
+    if (!persisted.user || !persisted.sessionId) return;
+    getSession(persisted.sessionId)
+      .then((session) => {
+        setMessages(
+          session.messages.map((m, i) => ({
+            id: i,
+            role: m.role,
+            content: m.content,
+            timestamp: new Date(m.createdAt),
+          }))
+        );
+        refreshSessions(persisted.user._id);
+      })
+      .catch(() => {
+        // Session no longer valid — clear persisted state and show registration
+        sessionStorage.removeItem('at_user');
+        sessionStorage.removeItem('at_session');
+        setUser(null);
+        setSessionId(null);
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Register user + open a fresh session
@@ -46,6 +93,8 @@ function useChat() {
   // Start a brand-new chat session (user already registered)
   const startNewSession = useCallback(async () => {
     if (!user) return;
+    // If current session is already empty, don't create another one
+    if (messages.length === 0) return;
     setIsLoading(true);
     setError(null);
     try {
@@ -58,7 +107,7 @@ function useChat() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, refreshSessions]);
+  }, [user, messages.length, refreshSessions]);
 
   // Load an old session from DB into the chat window
   const loadSession = useCallback(async (id) => {

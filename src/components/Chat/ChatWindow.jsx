@@ -170,14 +170,7 @@ function ChatWindow({ onBack }) {
             </div>
           </div>
 
-          <button
-            className={styles.newChatHeaderBtn}
-            onClick={startNewSession}
-            disabled={isLoading}
-            title="Start new chat"
-          >
-            ＋ New
-          </button>
+          <div className={styles.headerSpacer} />
         </header>
 
         {/* Messages */}

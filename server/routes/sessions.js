@@ -6,8 +6,11 @@ import SYSTEM_PROMPT from '../systemPrompt.js';
 
 const router = express.Router();
 
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'mistralai/mixtral-8x7b-instruct';
+// const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+// const MODEL = 'mistralai/mixtral-8x7b-instruct';
+
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+const MODEL = 'gpt-4o';
 
 // ── POST /api/sessions  — start a new session for a user ──
 router.post('/', async (req, res) => {
@@ -15,22 +18,8 @@ router.post('/', async (req, res) => {
     const { userId } = req.body;
     if (!userId) return res.status(400).json({ error: 'userId is required.' });
 
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: 'User not found.' });
-
     const session = await Session.create({ userId, messages: [] });
     res.status(201).json(session);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ── GET /api/sessions/:id  — load a session with its messages ──
-router.get('/:id', async (req, res) => {
-  try {
-    const session = await Session.findById(req.params.id).populate('userId');
-    if (!session) return res.status(404).json({ error: 'Session not found.' });
-    res.json(session);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -61,6 +50,17 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
+// ── GET /api/sessions/:id  — load a session with its messages ──
+router.get('/:id', async (req, res) => {
+  try {
+    const session = await Session.findById(req.params.id).populate('userId');
+    if (!session) return res.status(404).json({ error: 'Session not found.' });
+    res.json(session);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST /api/sessions/:id/message  — send a message, get AI reply, save both ──
 router.post('/:id/message', async (req, res) => {
   try {
@@ -73,7 +73,13 @@ router.post('/:id/message', async (req, res) => {
     // Get user profile to enrich the system prompt context
     const user = await User.findById(userId || session.userId);
     const userContext = user
-      ? `\n\nUser profile on file: Name = ${user.name}, DOB = ${user.dob} (DD/MM/YYYY), Sun Sign = ${user.sunSign}, Nakshatra = ${user.nakshatra}. Use this to personalise your answers — do not ask for DOB again.`
+      ? `\n\n--- SEEKER PROFILE (already registered — treat this as absolute truth) ---
+Name: ${user.name}
+Date of Birth: ${user.dob} (DD/MM/YYYY)
+Sun Sign: ${user.sunSign}
+Nakshatra: ${user.nakshatra}
+---
+IMPORTANT: You already know this person. NEVER ask for their name or DOB. If they ask "what is my name?" or "who am I?", answer directly using the profile above. Address them by name (${user.name}) throughout.`
       : '';
 
     // Build message payload for OpenRouter
@@ -84,14 +90,13 @@ router.post('/:id/message', async (req, res) => {
       { role: 'user', content },
     ];
 
-    // Call OpenRouter — API key stays on the server, never reaches browser
-    const openRouterRes = await fetch(OPENROUTER_API_URL, {
+    // Call OpenAI — API key stays on the server, never reaches browser
+    // const openRouterRes = await fetch(OPENROUTER_API_URL, { ... });  // OpenRouter commented out
+    const openAIRes = await fetch(OPENAI_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'http://localhost:5173',
-        'X-Title': 'AstroTalks',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         model: MODEL,
@@ -101,12 +106,12 @@ router.post('/:id/message', async (req, res) => {
       }),
     });
 
-    if (!openRouterRes.ok) {
-      const err = await openRouterRes.json().catch(() => ({}));
-      return res.status(502).json({ error: err?.error?.message || 'OpenRouter API error.' });
+    if (!openAIRes.ok) {
+      const err = await openAIRes.json().catch(() => ({}));
+      return res.status(502).json({ error: err?.error?.message || 'OpenAI API error.' });
     }
 
-    const data = await openRouterRes.json();
+    const data = await openAIRes.json();
     const replyContent = data?.choices?.[0]?.message?.content?.trim();
     if (!replyContent) return res.status(502).json({ error: 'Empty response from AI.' });
 
